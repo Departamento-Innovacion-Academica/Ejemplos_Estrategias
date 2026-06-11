@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Posicionamiento de Marca - 9 Estrategias</title>
+
+<style>
+    :root {
+        --primary: #27728f;
+        --primary-dark: #00323c;
+        --secondary: #27728f;
+        --accent: #00323c;
+        --bg: #f0f4f8;
+        --white: #ffffff;
+        --green: #00323c;
+        --purple: #27728f;
+        --orange: #00323c;
+    }
+
+    body {
+        font-family: poppins;
+        background: var(--bg);
+        padding: 40px 20px;
+        margin: 0;
+        color: #333;
+    }
+
+    h1 {
+        text-align: center;
+        color: var(--secondary);
+        margin-bottom: 15px;
+        font-size: 2.8rem;
+    }
+
+    .instruction {
+        text-align: center;
+        color: var(--primary);
+        font-size: 1.3rem;
+        margin-bottom: 50px;
+        font-weight: 500;
+    }
+
+    .timeline {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* La línea central */
+    .line {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+        transform: translateX(-50%);
+        border-radius: 2px;
+    }
+
+    /* Contenedor de cada nodo */
+    .node {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 80px;
+        cursor: pointer;
+    }
+
+    .node:last-child {
+        margin-bottom: 0;
+    }
+
+    /* El punto (círculo) clickeable CON NÚMERO */
+    .point {
+        width: 44px;
+        height: 44px;
+        background: var(--white);
+        border: 4px solid #ccc;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        
+        /* Para centrar el número */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+        color: #888;
+    }
+
+    /* Efecto hover */
+    .node:hover .point {
+        transform: translateX(-50%) scale(1.2);
+        border-color: var(--primary);
+        box-shadow: 0 6px 20px rgba(39, 114, 140, 0.4);
+    }
+
+    /* Nodo activo */
+    .node.active .point {
+        background: var(--primary);
+        border-color: var(--primary);
+        transform: translateX(-50%) scale(1.4);
+        box-shadow: 0 0 0 6px rgba(39, 114, 140, 0.3), 0 4px 15px rgba(39, 114, 140, 0.5);
+        color: var(--white);
+    }
+
+    /* La tarjeta de texto */
+    .card {
+        width: 54%;
+        background: var(--white);
+        padding: 30px 32px;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-left: 6px solid var(--primary);
+        
+        /* Estados iniciales para la animación */
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+        transition: all 0.4s ease;
+        position: absolute;
+        pointer-events: none;
+        visibility: hidden;
+    }
+
+    /* Colores de borde alternados */
+    .node:nth-child(9n+1) .card { border-left-color: var(--primary); }
+    .node:nth-child(9n+2) .card { border-left-color: var(--accent); }
+    .node:nth-child(9n+3) .card { border-left-color: var(--green); }
+    .node:nth-child(9n+4) .card { border-left-color: var(--purple); }
+    .node:nth-child(9n+5) .card { border-left-color: var(--orange); }
+    .node:nth-child(9n+6) .card { border-left-color: var(--primary-dark); }
+    .node:nth-child(9n+7) .card { border-left-color: #1abc9c; }
+    .node:nth-child(9n+8) .card { border-left-color: #34495e; }
+
+    /* Número en la tarjeta */
+    .card-number {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        background: var(--secondary);
+        color: var(--white);
+        border-radius: 50%;
+        text-align: center;
+        line-height: 40px;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 14px;
+    }
+
+    /* Clase para mostrar la tarjeta */
+    .card.active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        position: relative;
+        pointer-events: auto;
+        visibility: visible;
+    }
+
+    /* Posicionamiento de tarjetas */
+    .node:nth-child(odd) .card {
+        margin-right: 51%;
+        text-align: right;
+    }
+    
+    .node:nth-child(odd) .card-number {
+        float: right;
+        margin-left: 14px;
+        margin-bottom: 0;
+    }
+
+    .node:nth-child(even) .card {
+        margin-left: 51%;
+        text-align: left;
+    }
+
+    .node:nth-child(even) .card-number {
+        margin-right: 14px;
+        margin-bottom: 0;
+    }
+
+    /* Estilos internos de la tarjeta */
+    h3 {
+        margin: 0 0 14px 0;
+        color: var(--secondary);
+        font-size: 1.5rem;
+        display: inline;
+    }
+
+    p {
+        margin: 0;
+        line-height: 1.7;
+        color: #444;
+        font-size: 1.15rem;
+        text-align: left;
+        
+    }
+
+    /* --- DISEÑO RESPONSIVE (MÓVILES) --- */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 1.9rem;
+        }
+        
+        .instruction {
+            font-size: 1.1rem;
+            margin-bottom: 35px;
+        }
+        
+        .line {
+            left: 20px;
+        }
+
+        .point {
+            left: 20px;
+            transform: translateX(-50%);
+            width: 38px;
+            height: 38px;
+            font-size: 15px;
+        }
+        
+        .node:hover .point, 
+        .node.active .point {
+            transform: translateX(-50%);
+        }
+
+        .node {
+            display: block;
+            padding-left: 60px;
+            margin-bottom: 45px;
+        }
+
+        .node:nth-child(odd) .card, 
+        .node:nth-child(even) .card {
+            width: 100%;
+            margin: 0;
+            text-align: left;
+            position: relative;
+            left: 0;
+            box-sizing: border-box;
+            padding: 26px 28px;
+        }
+
+        .node:nth-child(odd) .card {
+            text-align: left;
+        }
+
+        .node:nth-child(odd) .card-number {
+            float: left;
+            margin-right: 14px;
+            margin-left: 0;
+            margin-bottom: 14px;
+        }
+        
+        .node:nth-child(even) .card-number {
+            margin-right: 14px;
+            margin-bottom: 14px;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+        }
+        
+        p {
+            font-size: 1.05rem;
+        }
+    }
+</style>
+</head>
+<body>
+
+
+<p class="instruction">👆 Haga clic en cada punto para ver las estrategias</p>
+
+<div class="timeline">
+    <div class="line"></div>
+
+    <!-- 1. Por Atributo -->
+    <div class="node active" onclick="activateNode(0)">
+        <div class="point">1</div>
+        <div class="card active">
+           
+            <h3>Por atributo</h3>
+            <p>Se destaca una característica específica del producto que marca diferencia frente a otros productos de su mismo género como el tamaño en un producto como el iPhone SE, que ofrece potencia en un formato pequeño.</p>
+        </div>
+    </div>
+
+    <!-- 2. Por Beneficio -->
+    <div class="node" onclick="activateNode(1)">
+        <div class="point">2</div>
+        <div class="card">
+          
+            <h3>Por beneficio</h3>
+            <p>Se destaca la ventaja y función núcleo y base que el consumidor obtendrá como beneficio al adquirir el producto. Por ejemplo, un desodorante puede posicionarse como el que protege contra el sudor durante 48 horas o la comida precocida y lista para llevar de la olla al plato en un mínimo de tiempo que permitirá al consumidor ampliar el tiempo de su vida laboral y al mismo tiempo suple la necesidad de consumir alimentos de una manera práctica, nutritiva y que no trastoque sus tiempos con sus entornos diarios.</p>
+        </div>
+    </div>
+
+    <!-- 3. Por Calidad -->
+    <div class="node" onclick="activateNode(2)">
+        <div class="point">3</div>
+        <div class="card">
+            
+            <h3>Por calidad</h3>
+            <p>Se busca posicionar la marca como la más confiable o de mayor rendimiento en su categoría. Esto se aplica a productos de alta gama, como automóviles de lujo, electrodomésticos sobre todo y más en estos nuevos tiempos de tecnología en donde el consumidor busca o se maneja mucho por la calidad y la garantía que le ofrezca un producto en lo que respecta a su uso.</p>
+        </div>
+    </div>
+
+    <!-- 4. Por Uso o Aplicación -->
+    <div class="node" onclick="activateNode(3)">
+        <div class="point">4</div>
+        <div class="card">
+            
+            <h3>Por uso o aplicación</h3>
+            <p>Se asocia la marca con un uso o aplicación particular y simple de entender y usar. Un ejemplo sería un detergente que se promociona como ideal para eliminar manchas difíciles o un jabón de loza que con solo una aplicación deja sus platos y loza en general.</p>
+        </div>
+    </div>
+
+    <!-- 5. Por Usuario -->
+    <div class="node" onclick="activateNode(4)">
+        <div class="point">5</div>
+        <div class="card">
+           
+            <h3>Por usuario</h3>
+            <p>Se dirige la marca a un segmento de mercado específico, como jóvenes, profesionales o familias, personalizando el producto y la comunicación.</p>
+        </div>
+    </div>
+
+    <!-- 6. Por Competencia -->
+    <div class="node" onclick="activateNode(5)">
+        <div class="point">6</div>
+        <div class="card">
+           
+            <h3>Por competencia</h3>
+            <p>Se posiciona la marca en relación directa con sus competidores, destacando las superioridades y características que llevan a una experiencia total de cobertura de beneficios y ventajas sobre la competencia o los beneficios que esta no proporciona.</p>
+        </div>
+    </div>
+
+    <!-- 7. Por Precio/Calidad -->
+    <div class="node" onclick="activateNode(6)">
+        <div class="point">7</div>
+        <div class="card">
+           
+            <h3>Por precio/calidad</h3>
+            <p>Se busca el equilibrio entre precio y calidad para atraer a los consumidores que buscan la mejor relación calidad-precio o costo beneficio, que lleve a que ese equilibrio se transforme en un vínculo más estrecho del consumidor con la marca, pero que al mismo tiempo y por medio de esa estrechez se expanda un mensaje de comunicación para vincular más relaciones con consumidores que primen en este binomio precio-calidad para la adquisición de productos.</p>
+        </div>
+    </div>
+
+    <!-- 8. Por Estilo de Vida -->
+    <div class="node" onclick="activateNode(7)">
+        <div class="point">8</div>
+        <div class="card">
+     
+            <h3>Por estilo de vida</h3>
+            <p>Se conecta con la audiencia a un nivel emocional, psicológico, mental, colectivo e individual, articulando la marca a un estilo y forma de vida o a unos valores y principios determinados que se destacan en un nivel considerado y que le permiten al consumidor por medio del uso y aplicación de este producto de ampliar la continuidad del estilo de vida y de los principios que el tiempo y las diversas generaciones familiares tiene el consumidor.</p>
+        </div>
+    </div>
+
+    <!-- 9. Por Influencer -->
+    <div class="node" onclick="activateNode(8)">
+        <div class="point">9</div>
+        <div class="card">
+           
+            <h3>Por influencer</h3>
+            <p>Se vincula la marca a una figura pública o personaje conocido para que sea su portavoz, una estrategia que es más común para grandes empresas.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function activateNode(index) {
+        const nodes = document.querySelectorAll('.node');
+        const cards = document.querySelectorAll('.card');
+
+        // Remover activo de todos
+        nodes.forEach(node => node.classList.remove('active'));
+        cards.forEach(card => card.classList.remove('active'));
+
+        // Activar solo el seleccionado
+        nodes[index].classList.add('active');
+        cards[index].classList.add('active');
+        
+        // Scroll suave hacia la tarjeta en móvil
+        if (window.innerWidth < 768) {
+            nodes[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+</script>
+
+</body>
+</html>
